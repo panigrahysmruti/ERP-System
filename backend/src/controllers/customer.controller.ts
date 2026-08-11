@@ -23,7 +23,7 @@ export const getCustomers = async (req: AuthenticatedRequest, res: Response): Pr
     }
     
     if (status) where.status = status as CustomerStatus;
-    if (type) where.customerType = type as CustomerType;
+    if (type) where.type = type as CustomerType;
 
     const [customers, total] = await Promise.all([
       prisma.customer.findMany({
@@ -52,14 +52,11 @@ export const getCustomers = async (req: AuthenticatedRequest, res: Response): Pr
 
 export const getCustomerById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     
     const customer = await prisma.customer.findUnique({
       where: { id },
       include: {
-        followUps: {
-          orderBy: { followUpDate: 'desc' }
-        },
         challans: {
           orderBy: { createdAt: 'desc' },
           take: 5
@@ -95,12 +92,11 @@ export const createCustomer = async (req: AuthenticatedRequest, res: Response): 
         email,
         businessName,
         gstNumber,
-        customerType: customerType || CustomerType.RETAIL,
+        type: customerType || CustomerType.RETAIL,
         address,
         status: status || CustomerStatus.LEAD,
         followUpDate: followUpDate ? new Date(followUpDate) : null,
-        notes,
-        createdById: req.user!.userId
+        notes
       }
     });
 
@@ -113,23 +109,24 @@ export const createCustomer = async (req: AuthenticatedRequest, res: Response): 
 
 export const updateCustomer = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { name, mobile, email, businessName, gstNumber, customerType, address, status, followUpDate, notes } = req.body;
     
+    const data: any = {};
+    if (name !== undefined) data.name = name;
+    if (mobile !== undefined) data.mobile = mobile;
+    if (email !== undefined) data.email = email;
+    if (businessName !== undefined) data.businessName = businessName;
+    if (gstNumber !== undefined) data.gstNumber = gstNumber;
+    if (customerType !== undefined) data.type = customerType;
+    if (address !== undefined) data.address = address;
+    if (status !== undefined) data.status = status;
+    if (followUpDate !== undefined) data.followUpDate = followUpDate ? new Date(followUpDate) : null;
+    if (notes !== undefined) data.notes = notes;
+
     const customer = await prisma.customer.update({
       where: { id },
-      data: {
-        name,
-        mobile,
-        email,
-        businessName,
-        gstNumber,
-        customerType,
-        address,
-        status,
-        followUpDate: followUpDate ? new Date(followUpDate) : null,
-        notes
-      }
+      data
     });
 
     res.status(200).json({ customer, message: 'Customer updated successfully' });
@@ -141,7 +138,7 @@ export const updateCustomer = async (req: AuthenticatedRequest, res: Response): 
 
 export const addFollowUp = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { note, followUpDate } = req.body;
     
     if (!note) {
@@ -156,24 +153,18 @@ export const addFollowUp = async (req: AuthenticatedRequest, res: Response): Pro
       return;
     }
 
-    const followUp = await prisma.customerFollowUp.create({
-      data: {
-        customerId: id,
-        note,
-        followUpDate: followUpDate ? new Date(followUpDate) : null,
-        createdById: req.user!.userId
-      }
-    });
-    
-    // Optionally update the customer's next followUpDate if provided
+    const data: any = {};
+    data.notes = customer.notes ? `${customer.notes}\n${note}` : note;
     if (followUpDate) {
-      await prisma.customer.update({
-        where: { id },
-        data: { followUpDate: new Date(followUpDate) }
-      });
+      data.followUpDate = new Date(followUpDate);
     }
 
-    res.status(201).json({ followUp, message: 'Follow-up note added successfully' });
+    const updatedCustomer = await prisma.customer.update({
+      where: { id },
+      data
+    });
+
+    res.status(201).json({ followUp: { note, followUpDate }, message: 'Follow-up note added successfully' });
   } catch (error) {
     console.error('Error adding follow-up:', error);
     res.status(500).json({ message: 'Internal server error' });

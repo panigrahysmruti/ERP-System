@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/auth.routes';
 import customerRoutes from './routes/customer.routes';
+import productRoutes from './routes/product.routes';
+import inventoryRoutes from './routes/inventory.routes';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -14,6 +16,8 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/inventory', inventoryRoutes);
 
 app.get('/', (req, res) => {
   res.send('ERP Backend is running!');

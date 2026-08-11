@@ -1,11 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import './index.css';
+import CustomerList from './pages/Customers/CustomerList';
+import CustomerDetail from './pages/Customers/CustomerDetail';
+import InventoryLayout from './pages/Inventory/InventoryLayout';
 
 // Placeholder components until we build them
 const Login = () => <div className="p-8">Login Page</div>;
 const Dashboard = () => <div className="p-8">Dashboard</div>;
-const Customers = () => <div className="p-8">Customers CRM</div>;
 
 const Layout = ({ children }: { children: React.ReactNode }) => (
   <div className="flex h-screen bg-slate-50">
@@ -14,6 +16,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
       <nav className="flex flex-col gap-2">
         <a href="/" className="px-4 py-2 hover:bg-slate-800 rounded">Dashboard</a>
         <a href="/customers" className="px-4 py-2 hover:bg-slate-800 rounded">Customers</a>
+        <a href="/inventory" className="px-4 py-2 hover:bg-slate-800 rounded">Inventory</a>
       </nav>
     </aside>
     <main className="flex-1 overflow-auto">
@@ -29,9 +32,11 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         
-        {/* Protected Routes (Placeholders) */}
+        {/* Protected Routes */}
         <Route path="/" element={<Layout><Dashboard /></Layout>} />
-        <Route path="/customers" element={<Layout><Customers /></Layout>} />
+        <Route path="/customers" element={<Layout><CustomerList /></Layout>} />
+        <Route path="/customers/:id" element={<Layout><CustomerDetail /></Layout>} />
+        <Route path="/inventory" element={<Layout><InventoryLayout /></Layout>} />
         
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
