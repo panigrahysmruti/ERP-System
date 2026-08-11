@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Package, AlertTriangle, ArrowRight, UserPlus, PackagePlus } from 'lucide-react';
+import { Users, Package, AlertTriangle, ArrowRight, UserPlus, PackagePlus, FileCheck } from 'lucide-react';
 import { dashboardService } from '../../services/dashboard.service';
 import type { Customer } from '../../types/customer';
 import type { Product } from '../../types/product';
@@ -19,6 +19,8 @@ export default function Dashboard() {
   const [lowStockProducts, setLowStockProducts] = useState<Product[]>([]);
   
   const navigate = useNavigate();
+  const userJson = localStorage.getItem('user');
+  const user = userJson ? JSON.parse(userJson) : null;
 
   const fetchDashboardData = async () => {
     try {
@@ -49,9 +51,19 @@ export default function Dashboard() {
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
-        <p className="text-sm text-slate-500 mt-1">Overview of your operations, CRM metrics, and stock alerts.</p>
+      <div className="flex flex-wrap justify-between items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Operational Dashboard</h1>
+          <p className="text-sm text-slate-500 mt-1">Overview of your operations, CRM metrics, and stock alerts.</p>
+        </div>
+        {user && (
+          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm text-xs font-semibold text-slate-700">
+            <span>Role Permissions:</span>
+            <span className="px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded uppercase tracking-wider">
+              {user.role}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* KPI Cards */}
@@ -103,7 +115,7 @@ export default function Dashboard() {
       <div className="bg-gradient-to-r from-slate-900 to-indigo-950 p-6 rounded-2xl text-white shadow-md flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold">Quick Operational Actions</h2>
-          <p className="text-slate-300 text-sm mt-0.5">Jump directly into customer management or inventory updates.</p>
+          <p className="text-slate-300 text-sm mt-0.5">Jump directly into customer management, inventory, or sales challans.</p>
         </div>
         <div className="flex flex-wrap gap-3">
           <button 
@@ -116,7 +128,13 @@ export default function Dashboard() {
             onClick={() => navigate('/inventory')}
             className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition border border-slate-700"
           >
-            <PackagePlus size={18} /> Manage Inventory
+            <PackagePlus size={18} /> Inventory
+          </button>
+          <button 
+            onClick={() => navigate('/challans/new')}
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition shadow-sm"
+          >
+            <FileCheck size={18} /> New Sales Challan
           </button>
         </div>
       </div>

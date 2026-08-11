@@ -12,7 +12,8 @@ import Login from './pages/Auth/Login';
 import ChallanList from './pages/Challans/ChallanList';
 import CreateChallan from './pages/Challans/CreateChallan';
 import ChallanDetail from './pages/Challans/ChallanDetail';
-import { LayoutDashboard, Users, Package, LogOut, UserCheck, FileText } from 'lucide-react';
+import UserList from './pages/Users/UserList';
+import { LayoutDashboard, Users, Package, LogOut, UserCheck, FileText, Shield } from 'lucide-react';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -31,6 +32,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { label: 'Inventory', path: '/inventory', icon: Package },
     { label: 'Sales Challans', path: '/challans', icon: FileText },
   ];
+
+  if (user?.role === 'ADMIN') {
+    navItems.push({ label: 'Staff & Roles', path: '/users', icon: Shield });
+  }
 
   return (
     <div className="flex h-screen bg-slate-50">
@@ -125,6 +130,7 @@ function App() {
         <Route path="/challans" element={<Layout><ChallanList /></Layout>} />
         <Route path="/challans/new" element={<Layout><CreateChallan /></Layout>} />
         <Route path="/challans/:id" element={<Layout><ChallanDetail /></Layout>} />
+        <Route path="/users" element={<Layout><UserList /></Layout>} />
         
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

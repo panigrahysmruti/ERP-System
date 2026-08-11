@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, CheckCircle2, XCircle, Clock, Building, Phone, Mail, MapPin } from 'lucide-react';
-import type { Challan, ChallanStatus } from '../../types/challan';
+import { ArrowLeft, FileText, CheckCircle2, XCircle, Clock, Building, Phone, Mail, MapPin, Printer } from 'lucide-react';
+import type { Challan, ChallanStatus, ChallanItem } from '../../types/challan';
 import { challanService } from '../../services/challan.service';
+import ChallanPrintModal from './ChallanPrintModal';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
@@ -11,6 +12,7 @@ export default function ChallanDetail() {
   const [challan, setChallan] = useState<Challan | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const fetchChallan = async () => {
@@ -62,7 +64,7 @@ export default function ChallanDetail() {
   }
 
   const calculateGrandTotal = () => {
-    return (challan.items || []).reduce((sum, item) => {
+    return (challan.items || []).reduce((sum: number, item: ChallanItem) => {
       const price = item.snapshotData?.unitPrice || 0;
       return sum + price * item.quantity;
     }, 0);
@@ -106,8 +108,15 @@ export default function ChallanDetail() {
           </div>
         </div>
 
-        {/* Status Action Buttons */}
-        <div className="flex gap-3">
+        {/* Status Action Buttons & Export PDF */}
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => setIsPrintModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-medium transition shadow-sm"
+          >
+            <Printer size={16} /> Export Tax Invoice / PDF
+          </button>
+
           {challan.status === 'DRAFT' && (
             <button
               disabled={updating}
@@ -176,7 +185,7 @@ export default function ChallanDetail() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-sm">
-            {(challan.items || []).map((item) => {
+            {(challan.items || []).map((item: ChallanItem) => {
               const snap = item.snapshotData;
               const subtotal = (snap?.unitPrice || 0) * item.quantity;
               return (
@@ -214,6 +223,13 @@ export default function ChallanDetail() {
           </div>
         </div>
       </div>
+
+      {/* Printable Invoice Modal */}
+      <ChallanPrintModal
+        isOpen={isPrintModalOpen}
+        onClose={() => setIsPrintModalOpen(false)}
+        challan={challan}
+      />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import productRoutes from './routes/product.routes';
 import inventoryRoutes from './routes/inventory.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import challanRoutes from './routes/challan.routes';
+import userRoutes from './routes/user.routes';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -22,6 +23,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/challans', challanRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
   res.send('ERP Backend is running!');
