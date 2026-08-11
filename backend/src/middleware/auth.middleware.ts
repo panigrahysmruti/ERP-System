@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken, JwtPayload } from '../utils/jwt';
-import { Role } from '@prisma/client';
+import { Role } from '../generated/prisma/client';
 
 export interface AuthenticatedRequest extends Request {
   user?: JwtPayload;
