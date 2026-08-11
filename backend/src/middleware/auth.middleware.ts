@@ -14,6 +14,11 @@ export const authenticate = (req: AuthenticatedRequest, res: Response, next: Nex
   }
 
   const token = authHeader.split(' ')[1];
+  
+  if (!token) {
+    res.status(401).json({ message: 'Unauthorized: No token provided' });
+    return;
+  }
   const decoded = verifyToken(token);
 
   if (!decoded) {
