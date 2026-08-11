@@ -9,7 +9,10 @@ import CustomerDetail from './pages/Customers/CustomerDetail';
 import InventoryLayout from './pages/Inventory/InventoryLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Login from './pages/Auth/Login';
-import { LayoutDashboard, Users, Package, LogOut, UserCheck } from 'lucide-react';
+import ChallanList from './pages/Challans/ChallanList';
+import CreateChallan from './pages/Challans/CreateChallan';
+import ChallanDetail from './pages/Challans/ChallanDetail';
+import { LayoutDashboard, Users, Package, LogOut, UserCheck, FileText } from 'lucide-react';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -26,6 +29,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { label: 'Dashboard', path: '/', icon: LayoutDashboard },
     { label: 'Customers', path: '/customers', icon: Users },
     { label: 'Inventory', path: '/inventory', icon: Package },
+    { label: 'Sales Challans', path: '/challans', icon: FileText },
   ];
 
   return (
@@ -118,6 +122,9 @@ function App() {
         <Route path="/customers" element={<Layout><CustomerList /></Layout>} />
         <Route path="/customers/:id" element={<Layout><CustomerDetail /></Layout>} />
         <Route path="/inventory" element={<Layout><InventoryLayout /></Layout>} />
+        <Route path="/challans" element={<Layout><ChallanList /></Layout>} />
+        <Route path="/challans/new" element={<Layout><CreateChallan /></Layout>} />
+        <Route path="/challans/:id" element={<Layout><ChallanDetail /></Layout>} />
         
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
