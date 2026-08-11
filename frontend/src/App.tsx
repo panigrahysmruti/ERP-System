@@ -4,10 +4,10 @@ import './index.css';
 import CustomerList from './pages/Customers/CustomerList';
 import CustomerDetail from './pages/Customers/CustomerDetail';
 import InventoryLayout from './pages/Inventory/InventoryLayout';
+import Dashboard from './pages/Dashboard/Dashboard';
 
 // Placeholder components until we build them
 const Login = () => <div className="p-8">Login Page</div>;
-const Dashboard = () => <div className="p-8">Dashboard</div>;
 
 const Layout = ({ children }: { children: React.ReactNode }) => (
   <div className="flex h-screen bg-slate-50">
