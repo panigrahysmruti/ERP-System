@@ -1,31 +1,112 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import './index.css';
+import './services/api';
+import { ensureAuthenticated } from './services/api';
 import CustomerList from './pages/Customers/CustomerList';
 import CustomerDetail from './pages/Customers/CustomerDetail';
 import InventoryLayout from './pages/Inventory/InventoryLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
+import Login from './pages/Auth/Login';
+import { LayoutDashboard, Users, Package, LogOut, UserCheck } from 'lucide-react';
 
-// Placeholder components until we build them
-const Login = () => <div className="p-8">Login Page</div>;
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  const userJson = localStorage.getItem('user');
+  const user = userJson ? JSON.parse(userJson) : null;
 
-const Layout = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex h-screen bg-slate-50">
-    <aside className="w-64 bg-slate-900 text-white p-4">
-      <h1 className="text-xl font-bold mb-8">Mini ERP</h1>
-      <nav className="flex flex-col gap-2">
-        <a href="/" className="px-4 py-2 hover:bg-slate-800 rounded">Dashboard</a>
-        <a href="/customers" className="px-4 py-2 hover:bg-slate-800 rounded">Customers</a>
-        <a href="/inventory" className="px-4 py-2 hover:bg-slate-800 rounded">Inventory</a>
-      </nav>
-    </aside>
-    <main className="flex-1 overflow-auto">
-      {children}
-    </main>
-  </div>
-);
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
+
+  const navItems = [
+    { label: 'Dashboard', path: '/', icon: LayoutDashboard },
+    { label: 'Customers', path: '/customers', icon: Users },
+    { label: 'Inventory', path: '/inventory', icon: Package },
+  ];
+
+  return (
+    <div className="flex h-screen bg-slate-50">
+      <aside className="w-64 bg-slate-900 text-white p-4 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center gap-3 mb-8 px-2">
+            <div className="p-2 bg-indigo-600 rounded-lg">
+              <UserCheck size={20} />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold">Mini ERP</h1>
+              <span className="text-xs text-slate-400">Operations Portal</span>
+            </div>
+          </div>
+
+          <nav className="flex flex-col gap-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition ${
+                    isActive 
+                      ? 'bg-indigo-600 text-white' 
+                      : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  }`}
+                >
+                  <Icon size={18} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* User profile & Logout */}
+        <div className="border-t border-slate-800 pt-4">
+          {user && (
+            <div className="px-2 mb-3">
+              <div className="font-medium text-sm text-slate-200">{user.name}</div>
+              <div className="text-xs text-slate-400 flex items-center justify-between mt-0.5">
+                <span>{user.email}</span>
+                <span className="px-1.5 py-0.5 bg-indigo-950 text-indigo-300 rounded font-semibold text-[10px]">
+                  {user.role}
+                </span>
+              </div>
+            </div>
+          )}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition"
+          >
+            <LogOut size={16} /> Sign Out
+          </button>
+        </div>
+      </aside>
+      <main className="flex-1 overflow-auto">
+        {children}
+      </main>
+    </div>
+  );
+};
 
 function App() {
+  const [initAuth, setInitAuth] = useState(false);
+
+  useEffect(() => {
+    ensureAuthenticated().then(() => setInitAuth(true));
+  }, []);
+
+  if (!initAuth) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">
+        Initializing System Access...
+      </div>
+    );
+  }
+
   return (
     <Router>
       <Toaster position="top-right" />
