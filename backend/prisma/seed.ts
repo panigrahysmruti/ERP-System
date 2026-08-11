@@ -1,7 +1,12 @@
 import { PrismaClient, Role, CustomerType, CustomerStatus, MovementType, ChallanStatus } from '../src/generated/prisma/client';
 import bcrypt from 'bcryptjs'
 
-const prisma = new PrismaClient()
+import pg from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
+
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/erp' });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log('Seeding Database...')
@@ -139,9 +144,11 @@ async function main() {
 main()
   .then(async () => {
     await prisma.$disconnect()
+    await pool.end()
   })
   .catch(async (e) => {
     console.error(e)
     await prisma.$disconnect()
+    await pool.end()
     process.exit(1)
   })
