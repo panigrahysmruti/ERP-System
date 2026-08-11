@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import prisma from '../config/db';
 import { generateToken } from '../utils/jwt';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
+import { inMemoryStore } from '../config/inMemoryDb';
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -13,9 +14,15 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email }
-    });
+    let user: any = null;
+    try {
+      user = await prisma.user.findUnique({
+        where: { email }
+      });
+    } catch (dbError) {
+      console.warn('Prisma DB error, using in-memory store:', dbError);
+      user = inMemoryStore.users.find(u => u.email === email);
+    }
 
     if (!user) {
       res.status(401).json({ message: 'Invalid credentials' });
@@ -54,10 +61,15 @@ export const getMe = async (req: AuthenticatedRequest, res: Response): Promise<v
       return;
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: req.user.userId },
-      select: { id: true, name: true, email: true, role: true, createdAt: true }
-    });
+    let user: any = null;
+    try {
+      user = await prisma.user.findUnique({
+        where: { id: req.user.userId },
+        select: { id: true, name: true, email: true, role: true, createdAt: true }
+      });
+    } catch (dbError) {
+      user = inMemoryStore.users.find(u => u.id === req.user?.userId);
+    }
 
     if (!user) {
       res.status(404).json({ message: 'User not found' });
