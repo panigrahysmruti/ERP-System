@@ -21,6 +21,7 @@ export const inMemoryStore = {
       status: 'ACTIVE',
       address: '123 Main St, Mumbai',
       notes: 'Key retail buyer',
+      followUpDate: null as Date | null,
       createdAt: new Date(),
       updatedAt: new Date()
     },
@@ -35,6 +36,7 @@ export const inMemoryStore = {
       status: 'LEAD',
       address: '456 Market Road, Delhi',
       notes: 'High volume lead',
+      followUpDate: null as Date | null,
       createdAt: new Date(),
       updatedAt: new Date()
     }
